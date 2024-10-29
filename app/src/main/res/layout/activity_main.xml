@@ -1,0 +1,32 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/btnCapture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Capturar Imagen"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp" />
+
+    <ImageView
+        android:id="@+id/imgPhoto"
+        android:src="@drawable/lisa"
+        android:layout_width="300dp"
+        android:layout_height="500dp"
+        android:layout_below="@id/btnCapture"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp" />
+
+    <TextView
+        android:id="@+id/tvResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/imgPhoto"
+        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true"
+        android:text="Texto Reconocido"
+        android:textSize="16sp" />
+
+</RelativeLayout>
