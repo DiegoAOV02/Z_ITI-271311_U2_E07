@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -24,6 +25,12 @@ import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
+import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
+import org.opencv.core.Mat;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -32,27 +39,42 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int CAMERA_REQUEST_CODE = 100;
-    private TextView tvResult;
-    private Button btnCapture;
-    private ImageView imgPhoto;
-    private Uri photoUri;
-    private String currentPhotoPath;
+    private static final int CAMERA_REQUEST_CODE = 100; // Constante para identificar la solicitud de la cámara
+    private TextView tvResult; // TextView para mostrar los resultados
+    private Button btnCapture; // Botón de captura de imagen tomada con el dispositivo
+    private ImageView imgPhoto; // ImageView para mostrar la imagen capturada
+    private Uri photoUri; // URI de la imagen capturada
+    private String currentPhotoPath; // Ruta de la imagen capturada
+
+    // Carga la biblioteca de OpenCV al iniciar la aplicación
+    static {
+        if (!OpenCVLoader.initDebug()) {
+            Log.d("OpenCV", "OpenCV no se pudo cargar");
+        } else {
+            Log.d("OpenCV", "OpenCV se cargó correctamente");
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Inicializar componentes de la interfaz de usuario
         tvResult = findViewById(R.id.tvResult);
         btnCapture = findViewById(R.id.btnCapture);
         imgPhoto = findViewById(R.id.imgPhoto);
 
+        // Asignar evento clic al botón de captura
         btnCapture.setOnClickListener(view -> openCamera());
     }
 
+    /**
+     * Método para abrir la imagen y crear un archivo temporal para guardar la imagen
+     * capturada y pasar la URI de la imagen al intent de la cámara
+     */
     private void openCamera() {
-        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); // Intent para apertura de la cámara del dispositivo
         if (cameraIntent.resolveActivity(getPackageManager()) != null) {
             File photoFile = null;
             try {
@@ -88,33 +110,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setPic() {
-        // Obtiene las dimensiones de la vista de destino
         int targetW = imgPhoto.getWidth();
         int targetH = imgPhoto.getHeight();
 
-        // Obtiene las dimensiones del archivo de la imagen
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
         bmOptions.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
         int photoW = bmOptions.outWidth;
         int photoH = bmOptions.outHeight;
 
-        // Determina cuánto escalar la imagen
         int scaleFactor = Math.min(photoW / targetW, photoH / targetH);
 
-        // Decodifica el archivo de imagen en un Bitmap con el tamaño para la vista
         bmOptions.inJustDecodeBounds = false;
         bmOptions.inSampleSize = scaleFactor;
         bmOptions.inPurgeable = true;
 
         Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
-
-        // Ajustar la orientación de la imagen si es necesario
         bitmap = rotateImageIfRequired(bitmap, currentPhotoPath);
 
         imgPhoto.setImageBitmap(bitmap); // Muestra la imagen en el ImageView
 
-        runTextRecognition(bitmap); // Procesa la imagen para reconocer el texto
+        detectVariablesAndProcessCells(bitmap); // Nueva función que integra la detección de variables y OCR
     }
 
     private Bitmap rotateImageIfRequired(Bitmap img, String photoPath) {
@@ -143,22 +159,53 @@ public class MainActivity extends AppCompatActivity {
         return Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
     }
 
-    private void runTextRecognition(Bitmap bitmap) {
+    private void detectVariablesAndProcessCells(Bitmap bitmap) {
+        Mat mat = new Mat();
+        Utils.bitmapToMat(bitmap, mat);
+        Imgproc.cvtColor(mat, mat, Imgproc.COLOR_BGR2GRAY);
+        Imgproc.GaussianBlur(mat, mat, new Size(5, 5), 0);
+        Imgproc.Canny(mat, mat, 50, 150);
+
+        int numCells = detectGridCells(mat); // Función de OpenCV para detectar la cuadrícula
+        int numVariables = determineNumberOfVariables(numCells);
+
+        tvResult.setText("Número de Variables Detectadas: " + numVariables);
+
+        // Procesar celdas con OCR
+        recognizeCells(bitmap, numVariables);
+    }
+
+    private int detectGridCells(Mat mat) {
+        // Aquí se haría la detección de contornos o cuadrícula
+        // Devuelve el número de celdas detectadas (4, 8, 16, etc.)
+        // Este es un código simulado, necesitarás ajustar con detección real
+        return 16; // Supongamos que detectamos un mapa de Karnaugh de 4 variables
+    }
+
+    /**
+     * Método para determinar el número de variables en el mapa de Karnaugh en base al número de
+     * celdas que se tengan
+     */
+    private int determineNumberOfVariables(int numCells) {
+        if (numCells == 4) return 2;
+        if (numCells == 8) return 3;
+        if (numCells == 16) return 4;
+        if (numCells == 32) return 5;
+        return -1;
+    }
+
+    private void recognizeCells(Bitmap bitmap, int numVariables) {
         InputImage image = InputImage.fromBitmap(bitmap, 0);
         TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
 
         recognizer.process(image)
-                .addOnSuccessListener(this::processTextRecognitionResult)
-                .addOnFailureListener(
-                        e -> Toast.makeText(MainActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-                );
-    }
-
-    private void processTextRecognitionResult(Text texts) {
-        StringBuilder resultText = new StringBuilder();
-        for (Text.TextBlock block : texts.getTextBlocks()) {
-            resultText.append(block.getText()).append("\n");
-        }
-        tvResult.setText(resultText.toString());
+                .addOnSuccessListener(visionText -> {
+                    StringBuilder resultText = new StringBuilder();
+                    for (Text.TextBlock block : visionText.getTextBlocks()) {
+                        resultText.append(block.getText()).append("\n");
+                    }
+                    tvResult.append("\nContenido detectado:\n" + resultText.toString());
+                })
+                .addOnFailureListener(e -> Toast.makeText(MainActivity.this, "Error en OCR: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 }

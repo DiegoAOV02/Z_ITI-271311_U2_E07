@@ -1,0 +1,18 @@
+/Users/diegoortiz/Library/Android/sdk/cmake/3.22.1/bin/cmake \
+  -H/Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/libcxx_helper \
+  -DCMAKE_SYSTEM_NAME=Android \
+  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+  -DCMAKE_SYSTEM_VERSION=21 \
+  -DANDROID_PLATFORM=android-21 \
+  -DANDROID_ABI=arm64-v8a \
+  -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a \
+  -DANDROID_NDK=/Users/diegoortiz/Library/Android/sdk/ndk/26.1.10909125 \
+  -DCMAKE_ANDROID_NDK=/Users/diegoortiz/Library/Android/sdk/ndk/26.1.10909125 \
+  -DCMAKE_TOOLCHAIN_FILE=/Users/diegoortiz/Library/Android/sdk/ndk/26.1.10909125/build/cmake/android.toolchain.cmake \
+  -DCMAKE_MAKE_PROGRAM=/Users/diegoortiz/Library/Android/sdk/cmake/3.22.1/bin/ninja \
+  -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=/Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/build/intermediates/cxx/Debug/2246z4h2/obj/arm64-v8a \
+  -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=/Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/build/intermediates/cxx/Debug/2246z4h2/obj/arm64-v8a \
+  -DCMAKE_BUILD_TYPE=Debug \
+  -B/Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/.cxx/Debug/2246z4h2/arm64-v8a \
+  -GNinja \
+  -DANDROID_STL=c++_shared

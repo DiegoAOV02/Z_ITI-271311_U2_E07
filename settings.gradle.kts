@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Z_ITI-271311_U2_E07"
 include(":app")
- 
+include(":sdk")
