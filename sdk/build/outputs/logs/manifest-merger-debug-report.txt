@@ -1,17 +1,17 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/java/AndroidManifest.xml:2:1-4:12
-INJECTED from /Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/java/AndroidManifest.xml:2:1-4:12
+ADDED from C:\Users\herca\OneDrive\Documentos\Progrmacion Movil\Proyecto en Equipos\Z_ITI-271311_U2_E07\sdk\java\AndroidManifest.xml:2:1-4:12
+INJECTED from C:\Users\herca\OneDrive\Documentos\Progrmacion Movil\Proyecto en Equipos\Z_ITI-271311_U2_E07\sdk\java\AndroidManifest.xml:2:1-4:12
 	package
-		ADDED from /Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/java/AndroidManifest.xml:3:7-27
-		INJECTED from /Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/java/AndroidManifest.xml
+		ADDED from C:\Users\herca\OneDrive\Documentos\Progrmacion Movil\Proyecto en Equipos\Z_ITI-271311_U2_E07\sdk\java\AndroidManifest.xml:3:7-27
+		INJECTED from C:\Users\herca\OneDrive\Documentos\Progrmacion Movil\Proyecto en Equipos\Z_ITI-271311_U2_E07\sdk\java\AndroidManifest.xml
 	xmlns:android
-		ADDED from /Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/java/AndroidManifest.xml:2:11-69
+		ADDED from C:\Users\herca\OneDrive\Documentos\Progrmacion Movil\Proyecto en Equipos\Z_ITI-271311_U2_E07\sdk\java\AndroidManifest.xml:2:11-69
 uses-sdk
-INJECTED from /Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/java/AndroidManifest.xml reason: use-sdk injection requested
-INJECTED from /Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/java/AndroidManifest.xml
-INJECTED from /Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/java/AndroidManifest.xml
+INJECTED from C:\Users\herca\OneDrive\Documentos\Progrmacion Movil\Proyecto en Equipos\Z_ITI-271311_U2_E07\sdk\java\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from C:\Users\herca\OneDrive\Documentos\Progrmacion Movil\Proyecto en Equipos\Z_ITI-271311_U2_E07\sdk\java\AndroidManifest.xml
+INJECTED from C:\Users\herca\OneDrive\Documentos\Progrmacion Movil\Proyecto en Equipos\Z_ITI-271311_U2_E07\sdk\java\AndroidManifest.xml
 	android:targetSdkVersion
-		INJECTED from /Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/java/AndroidManifest.xml
+		INJECTED from C:\Users\herca\OneDrive\Documentos\Progrmacion Movil\Proyecto en Equipos\Z_ITI-271311_U2_E07\sdk\java\AndroidManifest.xml
 	android:minSdkVersion
-		INJECTED from /Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/java/AndroidManifest.xml
+		INJECTED from C:\Users\herca\OneDrive\Documentos\Progrmacion Movil\Proyecto en Equipos\Z_ITI-271311_U2_E07\sdk\java\AndroidManifest.xml

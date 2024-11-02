@@ -1,4 +1,0 @@
-/Users/diegoortiz/Library/Android/sdk/cmake/3.22.1/bin/ninja \
-  -C \
-  /Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/.cxx/Debug/2246z4h2/arm64-v8a \
-  opencv_jni_shared

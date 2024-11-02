@@ -29,15 +29,13 @@ import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
 import org.opencv.android.OpenCVLoader;
-import org.opencv.android.Utils;
-import org.opencv.core.Mat;
-import org.opencv.core.Size;
-import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
@@ -140,10 +138,17 @@ public class MainActivity extends AppCompatActivity {
         // Crear un Canvas para dibujar sobre el Bitmap
         Bitmap mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
         Canvas canvas = new Canvas(mutableBitmap);
-        Paint paint = new Paint();
-        paint.setColor(android.graphics.Color.RED); // Color para el "encerrado"
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(5);
+
+        // Lista de colores para los diferentes grupos
+        int[] colors = {
+                android.graphics.Color.RED,
+                android.graphics.Color.BLUE,
+                android.graphics.Color.GREEN,
+                android.graphics.Color.YELLOW,
+                android.graphics.Color.CYAN,
+                android.graphics.Color.MAGENTA
+        };
+        final int[] colorIndex = {0};
 
         // Realizar OCR en la imagen completa
         InputImage image = InputImage.fromBitmap(bitmap, 0);
@@ -151,17 +156,33 @@ public class MainActivity extends AppCompatActivity {
 
         recognizer.process(image)
                 .addOnSuccessListener(visionText -> {
+                    // Guardar los rectángulos detectados
+                    List<Rect> detectedRects = new ArrayList<>();
+
+                    // Añadir cada rectángulo detectado de "1" o "X" en detectedRects
                     for (Text.TextBlock block : visionText.getTextBlocks()) {
                         String text = block.getText();
-                        // Si detecta un "1" o "X", dibuja el rectángulo alrededor de la celda
                         if (text.equals("1") || text.equalsIgnoreCase("X")) {
                             Rect boundingBox = block.getBoundingBox();
                             if (boundingBox != null) {
-                                // Dibuja un rectángulo alrededor de la celda detectada
-                                canvas.drawRect(boundingBox, paint);
+                                detectedRects.add(boundingBox);
                             }
                         }
                     }
+
+                    // Agrupar los rectángulos y dibujar el grupo con colores
+                    List<Rect> groupedRects = groupRectangles(detectedRects);
+                    for (Rect rect : groupedRects) {
+                        Paint paint = new Paint();
+                        paint.setColor(colors[colorIndex[0] % colors.length]); // Selecciona el color para el grupo
+                        paint.setStyle(Paint.Style.STROKE);
+                        paint.setStrokeWidth(5);
+
+                        // Dibuja el rectángulo para el grupo actual
+                        canvas.drawRect(rect, paint);
+                        colorIndex[0]++; // Cambia al siguiente color
+                    }
+
                     // Actualizar la imagen con el encerrado
                     imgPhoto.setImageBitmap(mutableBitmap);
                 })
@@ -169,6 +190,41 @@ public class MainActivity extends AppCompatActivity {
 
         return mutableBitmap;
     }
+
+
+    // Método para agrupar rectángulos
+    private List<Rect> groupRectangles(List<Rect> rects) {
+        List<Rect> groupedRects = new ArrayList<>();
+        boolean[] used = new boolean[rects.size()];
+
+        for (int i = 0; i < rects.size(); i++) {
+            if (!used[i]) {
+                Rect group = new Rect(rects.get(i));
+                used[i] = true;
+
+                for (int j = i + 1; j < rects.size(); j++) {
+                    if (!used[j] && areRectsAdjacent(group, rects.get(j))) {
+                        group.union(rects.get(j));
+                        used[j] = true;
+                    }
+                }
+
+                groupedRects.add(group);
+            }
+        }
+
+        return groupedRects;
+    }
+
+    // Método para verificar si dos rectángulos son adyacentes
+    private boolean areRectsAdjacent(Rect rect1, Rect rect2) {
+        int buffer = 10; // Tolerancia para considerar adyacencia
+
+        // Verificar si están en la misma fila o columna con una pequeña tolerancia
+        return (Math.abs(rect1.top - rect2.top) < buffer && Math.abs(rect1.bottom - rect2.bottom) < buffer) ||
+                (Math.abs(rect1.left - rect2.left) < buffer && Math.abs(rect1.right - rect2.right) < buffer);
+    }
+
 
     private Bitmap rotateImageIfRequired(Bitmap img, String photoPath) {
         try {
@@ -196,54 +252,3 @@ public class MainActivity extends AppCompatActivity {
         return Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
     }
 }
-//
-//    private void detectVariablesAndProcessCells(Bitmap bitmap) {
-//        Mat mat = new Mat();
-//        Utils.bitmapToMat(bitmap, mat);
-//        Imgproc.cvtColor(mat, mat, Imgproc.COLOR_BGR2GRAY);
-//        Imgproc.GaussianBlur(mat, mat, new Size(5, 5), 0);
-//        Imgproc.Canny(mat, mat, 50, 150);
-//
-//        int numCells = detectGridCells(mat); // Función de OpenCV para detectar la cuadrícula
-//        int numVariables = determineNumberOfVariables(numCells);
-//
-//        tvResult.setText("Número de Variables Detectadas: " + numVariables);
-//
-//        // Procesar celdas con OCR
-//        recognizeCells(bitmap, numVariables);
-//    }
-//
-//    private int detectGridCells(Mat mat) {
-//        // Aquí se haría la detección de contornos o cuadrícula
-//        // Devuelve el número de celdas detectadas (4, 8, 16, etc.)
-//        // Este es un código simulado, necesitarás ajustar con detección real
-//        return 16; // Supongamos que detectamos un mapa de Karnaugh de 4 variables
-//    }
-//
-//    /**
-//     * Método para determinar el número de variables en el mapa de Karnaugh en base al número de
-//     * celdas que se tengan
-//     */
-//    private int determineNumberOfVariables(int numCells) {
-//        if (numCells == 4) return 2;
-//        if (numCells == 8) return 3;
-//        if (numCells == 16) return 4;
-//        if (numCells == 32) return 5;
-//        return -1;
-//    }
-//
-//    private void recognizeCells(Bitmap bitmap, int numVariables) {
-//        InputImage image = InputImage.fromBitmap(bitmap, 0);
-//        TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
-//
-//        recognizer.process(image)
-//                .addOnSuccessListener(visionText -> {
-//                    StringBuilder resultText = new StringBuilder();
-//                    for (Text.TextBlock block : visionText.getTextBlocks()) {
-//                        resultText.append(block.getText()).append("\n");
-//                    }
-//                    tvResult.append("\nContenido detectado:\n" + resultText.toString());
-//                })
-//                .addOnFailureListener(e -> Toast.makeText(MainActivity.this, "Error en OCR: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-//    }
-//}
