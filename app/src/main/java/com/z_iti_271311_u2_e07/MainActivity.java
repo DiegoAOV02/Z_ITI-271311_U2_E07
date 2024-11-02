@@ -3,7 +3,10 @@ package com.z_iti_271311_u2_e07;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -74,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
      * capturada y pasar la URI de la imagen al intent de la cámara
      */
     private void openCamera() {
-        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); // Intent para apertura de la cámara del dispositivo
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (cameraIntent.resolveActivity(getPackageManager()) != null) {
             File photoFile = null;
             try {
@@ -128,9 +131,43 @@ public class MainActivity extends AppCompatActivity {
         Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
         bitmap = rotateImageIfRequired(bitmap, currentPhotoPath);
 
-        imgPhoto.setImageBitmap(bitmap); // Muestra la imagen en el ImageView
+        // Dibuja el encerrado en la imagen procesada
+        Bitmap resultBitmap = detectAndDrawEncirclements(bitmap);
+        imgPhoto.setImageBitmap(resultBitmap);
+    }
 
-        detectVariablesAndProcessCells(bitmap); // Nueva función que integra la detección de variables y OCR
+    private Bitmap detectAndDrawEncirclements(Bitmap bitmap) {
+        // Crear un Canvas para dibujar sobre el Bitmap
+        Bitmap mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+        Canvas canvas = new Canvas(mutableBitmap);
+        Paint paint = new Paint();
+        paint.setColor(android.graphics.Color.RED); // Color para el "encerrado"
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(5);
+
+        // Realizar OCR en la imagen completa
+        InputImage image = InputImage.fromBitmap(bitmap, 0);
+        TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
+
+        recognizer.process(image)
+                .addOnSuccessListener(visionText -> {
+                    for (Text.TextBlock block : visionText.getTextBlocks()) {
+                        String text = block.getText();
+                        // Si detecta un "1" o "X", dibuja el rectángulo alrededor de la celda
+                        if (text.equals("1") || text.equalsIgnoreCase("X")) {
+                            Rect boundingBox = block.getBoundingBox();
+                            if (boundingBox != null) {
+                                // Dibuja un rectángulo alrededor de la celda detectada
+                                canvas.drawRect(boundingBox, paint);
+                            }
+                        }
+                    }
+                    // Actualizar la imagen con el encerrado
+                    imgPhoto.setImageBitmap(mutableBitmap);
+                })
+                .addOnFailureListener(e -> Toast.makeText(MainActivity.this, "Error en OCR: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+
+        return mutableBitmap;
     }
 
     private Bitmap rotateImageIfRequired(Bitmap img, String photoPath) {
@@ -158,54 +195,55 @@ public class MainActivity extends AppCompatActivity {
         matrix.postRotate(degree);
         return Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
     }
-
-    private void detectVariablesAndProcessCells(Bitmap bitmap) {
-        Mat mat = new Mat();
-        Utils.bitmapToMat(bitmap, mat);
-        Imgproc.cvtColor(mat, mat, Imgproc.COLOR_BGR2GRAY);
-        Imgproc.GaussianBlur(mat, mat, new Size(5, 5), 0);
-        Imgproc.Canny(mat, mat, 50, 150);
-
-        int numCells = detectGridCells(mat); // Función de OpenCV para detectar la cuadrícula
-        int numVariables = determineNumberOfVariables(numCells);
-
-        tvResult.setText("Número de Variables Detectadas: " + numVariables);
-
-        // Procesar celdas con OCR
-        recognizeCells(bitmap, numVariables);
-    }
-
-    private int detectGridCells(Mat mat) {
-        // Aquí se haría la detección de contornos o cuadrícula
-        // Devuelve el número de celdas detectadas (4, 8, 16, etc.)
-        // Este es un código simulado, necesitarás ajustar con detección real
-        return 16; // Supongamos que detectamos un mapa de Karnaugh de 4 variables
-    }
-
-    /**
-     * Método para determinar el número de variables en el mapa de Karnaugh en base al número de
-     * celdas que se tengan
-     */
-    private int determineNumberOfVariables(int numCells) {
-        if (numCells == 4) return 2;
-        if (numCells == 8) return 3;
-        if (numCells == 16) return 4;
-        if (numCells == 32) return 5;
-        return -1;
-    }
-
-    private void recognizeCells(Bitmap bitmap, int numVariables) {
-        InputImage image = InputImage.fromBitmap(bitmap, 0);
-        TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
-
-        recognizer.process(image)
-                .addOnSuccessListener(visionText -> {
-                    StringBuilder resultText = new StringBuilder();
-                    for (Text.TextBlock block : visionText.getTextBlocks()) {
-                        resultText.append(block.getText()).append("\n");
-                    }
-                    tvResult.append("\nContenido detectado:\n" + resultText.toString());
-                })
-                .addOnFailureListener(e -> Toast.makeText(MainActivity.this, "Error en OCR: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-    }
 }
+//
+//    private void detectVariablesAndProcessCells(Bitmap bitmap) {
+//        Mat mat = new Mat();
+//        Utils.bitmapToMat(bitmap, mat);
+//        Imgproc.cvtColor(mat, mat, Imgproc.COLOR_BGR2GRAY);
+//        Imgproc.GaussianBlur(mat, mat, new Size(5, 5), 0);
+//        Imgproc.Canny(mat, mat, 50, 150);
+//
+//        int numCells = detectGridCells(mat); // Función de OpenCV para detectar la cuadrícula
+//        int numVariables = determineNumberOfVariables(numCells);
+//
+//        tvResult.setText("Número de Variables Detectadas: " + numVariables);
+//
+//        // Procesar celdas con OCR
+//        recognizeCells(bitmap, numVariables);
+//    }
+//
+//    private int detectGridCells(Mat mat) {
+//        // Aquí se haría la detección de contornos o cuadrícula
+//        // Devuelve el número de celdas detectadas (4, 8, 16, etc.)
+//        // Este es un código simulado, necesitarás ajustar con detección real
+//        return 16; // Supongamos que detectamos un mapa de Karnaugh de 4 variables
+//    }
+//
+//    /**
+//     * Método para determinar el número de variables en el mapa de Karnaugh en base al número de
+//     * celdas que se tengan
+//     */
+//    private int determineNumberOfVariables(int numCells) {
+//        if (numCells == 4) return 2;
+//        if (numCells == 8) return 3;
+//        if (numCells == 16) return 4;
+//        if (numCells == 32) return 5;
+//        return -1;
+//    }
+//
+//    private void recognizeCells(Bitmap bitmap, int numVariables) {
+//        InputImage image = InputImage.fromBitmap(bitmap, 0);
+//        TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
+//
+//        recognizer.process(image)
+//                .addOnSuccessListener(visionText -> {
+//                    StringBuilder resultText = new StringBuilder();
+//                    for (Text.TextBlock block : visionText.getTextBlocks()) {
+//                        resultText.append(block.getText()).append("\n");
+//                    }
+//                    tvResult.append("\nContenido detectado:\n" + resultText.toString());
+//                })
+//                .addOnFailureListener(e -> Toast.makeText(MainActivity.this, "Error en OCR: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+//    }
+//}
