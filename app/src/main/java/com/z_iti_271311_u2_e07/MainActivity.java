@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
 
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
+        String imageFileName = "Mapa_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(imageFileName, ".jpg", storageDir);
 
@@ -180,11 +180,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void detectAndDrawEncirclements(Bitmap bitmap) {
-        // Crear un Canvas para dibujar sobre el Bitmap
-        Bitmap mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+        Bitmap preprocessedBitmap = preprocessImage(bitmap);
+        Bitmap mutableBitmap = preprocessedBitmap.copy(Bitmap.Config.ARGB_8888, true);
         Canvas canvas = new Canvas(mutableBitmap);
 
-        // Lista de colores para los diferentes grupos
         int[] colors = {
                 android.graphics.Color.RED,
                 android.graphics.Color.BLUE,
@@ -195,17 +194,19 @@ public class MainActivity extends AppCompatActivity {
         };
         final int[] colorIndex = {0};
 
-        // Realizar OCR en la imagen completa
         InputImage image = InputImage.fromBitmap(bitmap, 0);
         TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
 
         recognizer.process(image)
                 .addOnSuccessListener(visionText -> {
-                    // Guardar los rectángulos detectados
+                    if (visionText.getTextBlocks().isEmpty()) {
+                        Toast.makeText(MainActivity.this, "No se detectó texto en la imagen.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     List<Rect> detectedRects = new ArrayList<>();
                     List<Rect> dontCareRects = new ArrayList<>();
 
-                    // Añadir cada rectángulo detectado de "1" o "X" en detectedRects
                     for (Text.TextBlock block : visionText.getTextBlocks()) {
                         for (Text.Line line : block.getLines()) {
                             for (Text.Element element : line.getElements()) {
@@ -214,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
                                 if (boundingBox != null) {
                                     if (text.equals("1")) {
                                         detectedRects.add(boundingBox);
-                                    } else if (text.equalsIgnoreCase("X")) {
+                                    } else if (text.equalsIgnoreCase("X") || text.equals("*")) {
                                         dontCareRects.add(boundingBox);
                                     }
                                 }
@@ -222,13 +223,13 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
 
-                    // Agrupar los rectángulos siguiendo las reglas del mapa de Karnaugh
+                    if (detectedRects.isEmpty() && dontCareRects.isEmpty()) {
+                        Toast.makeText(MainActivity.this, "No se detectaron elementos relevantes ('1' o 'X') en la imagen.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     groupRectanglesKarnaugh(detectedRects, dontCareRects, canvas, colors, colorIndex);
-
-                    // Actualizar la imagen con el encerrado
                     imgPhoto.setImageBitmap(mutableBitmap);
-
-                    // Guardar la imagen después de procesarla
                     saveImageToFile(mutableBitmap);
                 })
                 .addOnFailureListener(e -> Toast.makeText(MainActivity.this, "Error en OCR: " + e.getMessage(), Toast.LENGTH_SHORT).show());
@@ -599,4 +600,16 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
         }
     }
+
+    private Bitmap preprocessImage(Bitmap bitmap) {
+        Bitmap grayBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(grayBitmap);
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setDither(true);
+        paint.setFilterBitmap(true);
+        canvas.drawBitmap(bitmap, 0, 0, paint);
+        return grayBitmap;
+    }
+
 }
