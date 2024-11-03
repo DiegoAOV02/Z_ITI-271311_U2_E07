@@ -1,5 +1,6 @@
 package com.z_iti_271311_u2_e07;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -18,7 +19,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.Manifest;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -38,6 +38,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -167,11 +169,10 @@ public class MainActivity extends AppCompatActivity {
         bitmap = rotateImageIfRequired(bitmap, currentPhotoPath);
 
         // Dibuja el encerrado en la imagen procesada
-        Bitmap resultBitmap = detectAndDrawEncirclements(bitmap);
-        imgPhoto.setImageBitmap(resultBitmap);
+        detectAndDrawEncirclements(bitmap);
     }
 
-    private Bitmap detectAndDrawEncirclements(Bitmap bitmap) {
+    private void detectAndDrawEncirclements(Bitmap bitmap) {
         // Crear un Canvas para dibujar sobre el Bitmap
         Bitmap mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
         Canvas canvas = new Canvas(mutableBitmap);
@@ -195,73 +196,210 @@ public class MainActivity extends AppCompatActivity {
                 .addOnSuccessListener(visionText -> {
                     // Guardar los rectángulos detectados
                     List<Rect> detectedRects = new ArrayList<>();
+                    List<Rect> dontCareRects = new ArrayList<>();
 
                     // Añadir cada rectángulo detectado de "1" o "X" en detectedRects
                     for (Text.TextBlock block : visionText.getTextBlocks()) {
-                        String text = block.getText();
-                        if (text.equals("1") || text.equalsIgnoreCase("X")) {
-                            Rect boundingBox = block.getBoundingBox();
-                            if (boundingBox != null) {
-                                detectedRects.add(boundingBox);
+                        for (Text.Line line : block.getLines()) {
+                            for (Text.Element element : line.getElements()) {
+                                String text = element.getText();
+                                Rect boundingBox = element.getBoundingBox();
+                                if (boundingBox != null) {
+                                    if (text.equals("1")) {
+                                        detectedRects.add(boundingBox);
+                                    } else if (text.equalsIgnoreCase("X")) {
+                                        dontCareRects.add(boundingBox);
+                                    }
+                                }
                             }
                         }
                     }
 
-                    // Agrupar los rectángulos y dibujar el grupo con colores
-                    List<Rect> groupedRects = groupRectangles(detectedRects);
-                    for (Rect rect : groupedRects) {
-                        Paint paint = new Paint();
-                        paint.setColor(colors[colorIndex[0] % colors.length]); // Selecciona el color para el grupo
-                        paint.setStyle(Paint.Style.STROKE);
-                        paint.setStrokeWidth(5);
-
-                        // Dibuja el rectángulo para el grupo actual
-                        canvas.drawRect(rect, paint);
-                        colorIndex[0]++; // Cambia al siguiente color
-                    }
+                    // Agrupar los rectángulos siguiendo las reglas del mapa de Karnaugh
+                    groupRectanglesKarnaugh(detectedRects, dontCareRects, canvas, colors, colorIndex);
 
                     // Actualizar la imagen con el encerrado
                     imgPhoto.setImageBitmap(mutableBitmap);
                 })
                 .addOnFailureListener(e -> Toast.makeText(MainActivity.this, "Error en OCR: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-
-        return mutableBitmap;
     }
 
+    private void groupRectanglesKarnaugh(List<Rect> oneRects, List<Rect> dontCareRects, Canvas canvas, int[] colors, final int[] colorIndex) {
+        // Combinar los rectángulos de '1' y 'X' para formar la cuadrícula
+        List<Rect> allRects = new ArrayList<>();
+        allRects.addAll(oneRects);
+        allRects.addAll(dontCareRects);
 
-    // Método para agrupar rectángulos
-    private List<Rect> groupRectangles(List<Rect> rects) {
-        List<Rect> groupedRects = new ArrayList<>();
-        boolean[] used = new boolean[rects.size()];
+        // Primero, clusterizar rectángulos en filas y columnas
+        // Esto creará una cuadrícula donde cada celda representa una posible posición en el mapa
 
-        for (int i = 0; i < rects.size(); i++) {
-            if (!used[i]) {
-                Rect group = new Rect(rects.get(i));
-                used[i] = true;
+        // Ordenar rectángulos por coordenada Y central
+        allRects.sort(Comparator.comparingInt(Rect::centerY));
+        List<List<Rect>> rows = clusterRects(allRects, true); // Cluster por filas
 
-                for (int j = i + 1; j < rects.size(); j++) {
-                    if (!used[j] && areRectsAdjacent(group, rects.get(j))) {
-                        group.union(rects.get(j));
-                        used[j] = true;
+        // Ordenar rectángulos por coordenada X central
+        allRects.sort(Comparator.comparingInt(Rect::centerX));
+        List<List<Rect>> cols = clusterRects(allRects, false); // Cluster por columnas
+
+        int numRows = rows.size();
+        int numCols = cols.size();
+        int[][] grid = new int[numRows][numCols];
+        Rect[][] gridRects = new Rect[numRows][numCols];
+
+        // Mapear cada rectángulo a su posición en la cuadrícula
+        for (int i = 0; i < numRows; i++) {
+            List<Rect> row = rows.get(i);
+            for (Rect rect : row) {
+                int colIndex = getColumnIndex(rect, cols);
+                if (colIndex != -1) {
+                    if (oneRects.contains(rect)) {
+                        grid[i][colIndex] = 1; // '1' marcado como 1
+                    } else if (dontCareRects.contains(rect)) {
+                        grid[i][colIndex] = 2; // 'X' marcado como 2
                     }
+                    gridRects[i][colIndex] = rect;
                 }
-
-                groupedRects.add(group);
             }
         }
 
-        return groupedRects;
+        // Implementar el algoritmo de agrupamiento
+        boolean[][] visited = new boolean[numRows][numCols];
+        List<List<int[]>> groups = new ArrayList<>();
+
+        int maxGroupSize = 1;
+        while (maxGroupSize <= numRows * numCols) {
+            maxGroupSize *= 2;
+        }
+        maxGroupSize /= 2;
+
+        for (int groupSize = maxGroupSize; groupSize >= 1; groupSize /= 2) {
+            List<int[]> possibleDims = getPossibleDimensions(groupSize);
+            for (int[] dim : possibleDims) {
+                int rowsInGroup = dim[0];
+                int colsInGroup = dim[1];
+                for (int i = 0; i <= numRows - rowsInGroup; i++) {
+                    for (int j = 0; j <= numCols - colsInGroup; j++) {
+                        if (checkGroup(grid, visited, i, j, rowsInGroup, colsInGroup)) {
+                            // Añadir grupo
+                            List<int[]> group = new ArrayList<>();
+                            for (int r = 0; r < rowsInGroup; r++) {
+                                for (int c = 0; c < colsInGroup; c++) {
+                                    group.add(new int[]{i + r, j + c});
+                                    visited[i + r][j + c] = true;
+                                }
+                            }
+                            groups.add(group);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Dibujar rectángulos alrededor de los grupos
+        for (List<int[]> group : groups) {
+            Rect groupRect = null;
+            boolean containsOne = false;
+
+            for (int[] pos : group) {
+                Rect rect = gridRects[pos[0]][pos[1]];
+                if (rect != null) {
+                    if (groupRect == null) {
+                        groupRect = new Rect(rect);
+                    } else {
+                        groupRect.union(rect);
+                    }
+                    if (grid[pos[0]][pos[1]] == 1) {
+                        containsOne = true;
+                    }
+                }
+            }
+
+            if (groupRect != null && containsOne) {
+                Paint paint = new Paint();
+                paint.setColor(colors[colorIndex[0] % colors.length]); // Selecciona el color para el grupo
+                paint.setStyle(Paint.Style.STROKE);
+                paint.setStrokeWidth(5);
+
+                // Dibuja el rectángulo para el grupo actual
+                canvas.drawRect(groupRect, paint);
+                colorIndex[0]++; // Cambia al siguiente color
+            }
+        }
     }
 
-    // Método para verificar si dos rectángulos son adyacentes
-    private boolean areRectsAdjacent(Rect rect1, Rect rect2) {
-        int buffer = 10; // Tolerancia para considerar adyacencia
+    private List<List<Rect>> clusterRects(List<Rect> rects, boolean isRow) {
+        List<List<Rect>> clusters = new ArrayList<>();
+        double threshold = 50.0; // Ajustar según sea necesario
 
-        // Verificar si están en la misma fila o columna con una pequeña tolerancia
-        return (Math.abs(rect1.top - rect2.top) < buffer && Math.abs(rect1.bottom - rect2.bottom) < buffer) ||
-                (Math.abs(rect1.left - rect2.left) < buffer && Math.abs(rect1.right - rect2.right) < buffer);
+        for (Rect rect : rects) {
+            boolean added = false;
+            for (List<Rect> cluster : clusters) {
+                double clusterCoord = cluster.stream()
+                        .mapToDouble(r -> isRow ? r.centerY() : r.centerX())
+                        .average().orElse(0);
+                double rectCoord = isRow ? rect.centerY() : rect.centerX();
+                if (Math.abs(rectCoord - clusterCoord) < threshold) {
+                    cluster.add(rect);
+                    added = true;
+                    break;
+                }
+            }
+            if (!added) {
+                List<Rect> newCluster = new ArrayList<>();
+                newCluster.add(rect);
+                clusters.add(newCluster);
+            }
+        }
+        return clusters;
     }
 
+    private int getColumnIndex(Rect rect, List<List<Rect>> cols) {
+        for (int i = 0; i < cols.size(); i++) {
+            if (cols.get(i).contains(rect)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private List<int[]> getPossibleDimensions(int groupSize) {
+        List<int[]> dimensions = new ArrayList<>();
+        List<Integer> powersOfTwo = new ArrayList<>();
+        int power = 1;
+        while (power <= groupSize) {
+            powersOfTwo.add(power);
+            power *= 2;
+        }
+        for (int rows : powersOfTwo) {
+            if (groupSize % rows == 0) {
+                int cols = groupSize / rows;
+                if (powersOfTwo.contains(cols)) {
+                    dimensions.add(new int[]{rows, cols});
+                }
+            }
+        }
+        return dimensions;
+    }
+
+    private boolean checkGroup(int[][] grid, boolean[][] visited, int startRow, int startCol, int numRows, int numCols) {
+        boolean containsOne = false;
+
+        for (int i = startRow; i < startRow + numRows; i++) {
+            for (int j = startCol; j < startCol + numCols; j++) {
+                if (visited[i][j]) {
+                    return false;
+                }
+                int cellValue = grid[i][j];
+                if (cellValue == 0) { // No hay '1' ni 'X'
+                    return false;
+                }
+                if (cellValue == 1) { // Contiene al menos un '1'
+                    containsOne = true;
+                }
+            }
+        }
+        return containsOne;
+    }
 
     private Bitmap rotateImageIfRequired(Bitmap img, String photoPath) {
         try {
