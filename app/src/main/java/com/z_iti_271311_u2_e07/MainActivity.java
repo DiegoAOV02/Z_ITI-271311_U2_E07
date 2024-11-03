@@ -144,6 +144,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        // Ocultar el texto anterior
+        tvResult.setText("");
+
         if (requestCode == CAMERA_REQUEST_CODE && resultCode == RESULT_OK) {
             setPic(); // Cargar y mostrar la imagen en el ImageView
         }
@@ -295,10 +299,50 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        // Dibujar rectángulos alrededor de los grupos
+        // Crear variables
+        int totalCells = numRows * numCols;
+        int nVars = (int) (Math.log(totalCells) / Math.log(2));
+        int nRowVars = (int) (Math.log(numRows) / Math.log(2));
+        int nColVars = (int) (Math.log(numCols) / Math.log(2));
+
+        String[] variableNames = {"A", "B", "C", "D"};
+        String[] varsUsed = Arrays.copyOfRange(variableNames, 0, nVars);
+
+        List<String> rowGrayCodes = generateGrayCode(nRowVars);
+        List<String> colGrayCodes = generateGrayCode(nColVars);
+
+        // Crear asignaciones de variables para cada celda
+        CellInfo[][] cellVariableAssignments = new CellInfo[numRows][numCols];
+
+        for (int i = 0; i < numRows; i++) {
+            String rowCode = rowGrayCodes.get(i);
+            for (int j = 0; j < numCols; j++) {
+                String colCode = colGrayCodes.get(j);
+                String code = rowCode + colCode;
+                StringBuilder assignment = new StringBuilder();
+                char[] bits = new char[nVars];
+                for (int k = 0; k < code.length(); k++) {
+                    char bit = code.charAt(k);
+                    bits[k] = bit;
+                    String var = varsUsed[k];
+                    if (bit == '0') {
+                        assignment.append(var).append("'");
+                    } else {
+                        assignment.append(var);
+                    }
+                }
+                cellVariableAssignments[i][j] = new CellInfo(assignment.toString(), bits);
+            }
+        }
+
+        // Lista para almacenar los términos booleanos
+        List<String> terms = new ArrayList<>();
+
+        // Dibujar rectángulos alrededor de los grupos y generar términos
         for (List<int[]> group : groups) {
             Rect groupRect = null;
             boolean containsOne = false;
+            List<CellInfo> groupAssignments = new ArrayList<>();
 
             for (int[] pos : group) {
                 Rect rect = gridRects[pos[0]][pos[1]];
@@ -311,6 +355,7 @@ public class MainActivity extends AppCompatActivity {
                     if (grid[pos[0]][pos[1]] == 1) {
                         containsOne = true;
                     }
+                    groupAssignments.add(cellVariableAssignments[pos[0]][pos[1]]);
                 }
             }
 
@@ -323,8 +368,61 @@ public class MainActivity extends AppCompatActivity {
                 // Dibuja el rectángulo para el grupo actual
                 canvas.drawRect(groupRect, paint);
                 colorIndex[0]++; // Cambia al siguiente color
+
+                // Generar el término booleano para este grupo
+                String term = getGroupTerm(groupAssignments, varsUsed);
+                if (!term.isEmpty()) {
+                    terms.add(term);
+                }
             }
         }
+
+        // Construir la expresión booleana final
+        String booleanExpression = String.join(" + ", terms);
+
+        // Mostrar la expresión en tvResult
+        runOnUiThread(() -> tvResult.setText(booleanExpression));
+    }
+
+    private List<String> generateGrayCode(int n) {
+        List<String> codes = new ArrayList<>();
+        int numCodes = 1 << n; // 2^n codes
+        for (int i = 0; i < numCodes; i++) {
+            int gray = i ^ (i >> 1);
+            String code = Integer.toBinaryString(gray);
+            while (code.length() < n) {
+                code = "0" + code;
+            }
+            codes.add(code);
+        }
+        return codes;
+    }
+
+    private String getGroupTerm(List<CellInfo> groupAssignments, String[] varsUsed) {
+        if (groupAssignments.isEmpty()) {
+            return "";
+        }
+        int nVars = varsUsed.length;
+        char[] firstBits = groupAssignments.get(0).bits;
+        StringBuilder term = new StringBuilder();
+        for (int k = 0; k < nVars; k++) {
+            char bit = firstBits[k];
+            boolean same = true;
+            for (int i = 1; i < groupAssignments.size(); i++) {
+                if (groupAssignments.get(i).bits[k] != bit) {
+                    same = false;
+                    break;
+                }
+            }
+            if (same) {
+                if (bit == '0') {
+                    term.append(varsUsed[k]).append("'");
+                } else if (bit == '1') {
+                    term.append(varsUsed[k]);
+                }
+            }
+        }
+        return term.toString();
     }
 
     private List<List<Rect>> clusterRects(List<Rect> rects, boolean isRow) {
@@ -425,5 +523,16 @@ public class MainActivity extends AppCompatActivity {
         Matrix matrix = new Matrix();
         matrix.postRotate(degree);
         return Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
+    }
+
+    // Clase para almacenar la información de cada celda
+    class CellInfo {
+        String assignment;
+        char[] bits;
+
+        CellInfo(String assignment, char[] bits) {
+            this.assignment = assignment;
+            this.bits = bits;
+        }
     }
 }
