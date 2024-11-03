@@ -1,6 +1,7 @@
 package com.z_iti_271311_u2_e07;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -17,9 +18,12 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.Manifest;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import com.google.mlkit.vision.common.InputImage;
@@ -41,6 +45,7 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
 
     private static final int CAMERA_REQUEST_CODE = 100; // Constante para identificar la solicitud de la cámara
+    private static final int PERMISSION_REQUEST_CODE = 200; // Constante para identificar la solicitud de permisos
     private TextView tvResult; // TextView para mostrar los resultados
     private Button btnCapture; // Botón de captura de imagen tomada con el dispositivo
     private ImageView imgPhoto; // ImageView para mostrar la imagen capturada
@@ -67,7 +72,39 @@ public class MainActivity extends AppCompatActivity {
         imgPhoto = findViewById(R.id.imgPhoto);
 
         // Asignar evento clic al botón de captura
-        btnCapture.setOnClickListener(view -> openCamera());
+        btnCapture.setOnClickListener(view -> checkPermissionsAndOpenCamera());
+    }
+
+    /**
+     * Verifica si el permiso de cámara está otorgado.
+     * Si no lo está, solicita el permiso; de lo contrario, abre la cámara.
+     */
+    private void checkPermissionsAndOpenCamera() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            // Solicitar permiso de cámara
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CODE);
+        } else {
+            // Si el permiso ya está otorgado, abrir la cámara
+            openCamera();
+        }
+    }
+
+    /**
+     * Maneja la respuesta de la solicitud de permisos.
+     * Si el permiso de cámara fue otorgado, abre la cámara.
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permiso otorgado, abrir la cámara
+                openCamera();
+            } else {
+                // Permiso denegado, mostrar un mensaje al usuario
+                Toast.makeText(this, "Permiso de cámara es necesario", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     /**
