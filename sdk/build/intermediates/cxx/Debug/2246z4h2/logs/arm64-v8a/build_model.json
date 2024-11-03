@@ -8,9 +8,9 @@
     "triple": "aarch64-linux-android",
     "llvmTriple": "aarch64-none-linux-android"
   },
-  "cxxBuildFolder": "/Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/.cxx/Debug/2246z4h2/arm64-v8a",
-  "soFolder": "/Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/build/intermediates/cxx/Debug/2246z4h2/obj/arm64-v8a",
-  "soRepublishFolder": "/Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/build/intermediates/cmake/debug/obj/arm64-v8a",
+  "cxxBuildFolder": "C:\\Users\\herca\\OneDrive\\Documentos\\Progrmacion Movil\\Proyecto en Equipos\\Z_ITI-271311_U2_E07\\sdk\\.cxx\\Debug\\2246z4h2\\arm64-v8a",
+  "soFolder": "C:\\Users\\herca\\OneDrive\\Documentos\\Progrmacion Movil\\Proyecto en Equipos\\Z_ITI-271311_U2_E07\\sdk\\build\\intermediates\\cxx\\Debug\\2246z4h2\\obj\\arm64-v8a",
+  "soRepublishFolder": "C:\\Users\\herca\\OneDrive\\Documentos\\Progrmacion Movil\\Proyecto en Equipos\\Z_ITI-271311_U2_E07\\sdk\\build\\intermediates\\cmake\\debug\\obj\\arm64-v8a",
   "abiPlatformVersion": 21,
   "cmake": {
     "effectiveConfiguration": {
@@ -37,16 +37,16 @@
     ],
     "cmakeSettingsConfiguration": "android-gradle-plugin-predetermined-name",
     "module": {
-      "cxxFolder": "/Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/.cxx",
-      "intermediatesBaseFolder": "/Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/build/intermediates",
-      "intermediatesFolder": "/Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/build/intermediates/cxx",
+      "cxxFolder": "C:\\Users\\herca\\OneDrive\\Documentos\\Progrmacion Movil\\Proyecto en Equipos\\Z_ITI-271311_U2_E07\\sdk\\.cxx",
+      "intermediatesBaseFolder": "C:\\Users\\herca\\OneDrive\\Documentos\\Progrmacion Movil\\Proyecto en Equipos\\Z_ITI-271311_U2_E07\\sdk\\build\\intermediates",
+      "intermediatesFolder": "C:\\Users\\herca\\OneDrive\\Documentos\\Progrmacion Movil\\Proyecto en Equipos\\Z_ITI-271311_U2_E07\\sdk\\build\\intermediates\\cxx",
       "gradleModulePathName": ":sdk",
-      "moduleRootFolder": "/Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk",
-      "moduleBuildFile": "/Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/build.gradle",
-      "makeFile": "/Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/libcxx_helper/CMakeLists.txt",
+      "moduleRootFolder": "C:\\Users\\herca\\OneDrive\\Documentos\\Progrmacion Movil\\Proyecto en Equipos\\Z_ITI-271311_U2_E07\\sdk",
+      "moduleBuildFile": "C:\\Users\\herca\\OneDrive\\Documentos\\Progrmacion Movil\\Proyecto en Equipos\\Z_ITI-271311_U2_E07\\sdk\\build.gradle",
+      "makeFile": "C:\\Users\\herca\\OneDrive\\Documentos\\Progrmacion Movil\\Proyecto en Equipos\\Z_ITI-271311_U2_E07\\sdk\\libcxx_helper\\CMakeLists.txt",
       "buildSystem": "CMAKE",
-      "ndkFolder": "/Users/diegoortiz/Library/Android/sdk/ndk/26.1.10909125",
-      "ndkFolderBeforeSymLinking": "/Users/diegoortiz/Library/Android/sdk/ndk/26.1.10909125",
+      "ndkFolder": "C:\\Users\\herca\\AppData\\Local\\Android\\Sdk\\ndk\\26.1.10909125",
+      "ndkFolderBeforeSymLinking": "C:\\Users\\herca\\AppData\\Local\\Android\\Sdk\\ndk\\26.1.10909125",
       "ndkVersion": "26.1.10909125",
       "ndkSupportedAbiList": [
         "armeabi-v7a",
@@ -125,31 +125,31 @@
           "llvmTriple": "x86_64-none-linux-android"
         }
       ],
-      "cmakeToolchainFile": "/Users/diegoortiz/Library/Android/sdk/ndk/26.1.10909125/build/cmake/android.toolchain.cmake",
+      "cmakeToolchainFile": "C:\\Users\\herca\\AppData\\Local\\Android\\Sdk\\ndk\\26.1.10909125\\build\\cmake\\android.toolchain.cmake",
       "cmake": {
-        "cmakeExe": "/Users/diegoortiz/Library/Android/sdk/cmake/3.22.1/bin/cmake"
+        "cmakeExe": "C:\\Users\\herca\\AppData\\Local\\Android\\Sdk\\cmake\\3.22.1\\bin\\cmake.exe"
       },
       "stlSharedObjectMap": {
         "LIBCXX_SHARED": {
-          "armeabi-v7a": "/Users/diegoortiz/Library/Android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/arm-linux-androideabi/libc++_shared.so",
-          "arm64-v8a": "/Users/diegoortiz/Library/Android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so",
-          "x86": "/Users/diegoortiz/Library/Android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/i686-linux-android/libc++_shared.so",
-          "x86_64": "/Users/diegoortiz/Library/Android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/x86_64-linux-android/libc++_shared.so"
+          "armeabi-v7a": "C:\\Users\\herca\\AppData\\Local\\Android\\Sdk\\ndk\\26.1.10909125\\toolchains\\llvm\\prebuilt\\windows-x86_64\\sysroot\\usr\\lib\\arm-linux-androideabi\\libc++_shared.so",
+          "arm64-v8a": "C:\\Users\\herca\\AppData\\Local\\Android\\Sdk\\ndk\\26.1.10909125\\toolchains\\llvm\\prebuilt\\windows-x86_64\\sysroot\\usr\\lib\\aarch64-linux-android\\libc++_shared.so",
+          "x86": "C:\\Users\\herca\\AppData\\Local\\Android\\Sdk\\ndk\\26.1.10909125\\toolchains\\llvm\\prebuilt\\windows-x86_64\\sysroot\\usr\\lib\\i686-linux-android\\libc++_shared.so",
+          "x86_64": "C:\\Users\\herca\\AppData\\Local\\Android\\Sdk\\ndk\\26.1.10909125\\toolchains\\llvm\\prebuilt\\windows-x86_64\\sysroot\\usr\\lib\\x86_64-linux-android\\libc++_shared.so"
         },
         "LIBCXX_STATIC": {},
         "NONE": {},
         "SYSTEM": {}
       },
       "project": {
-        "rootBuildGradleFolder": "/Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07",
-        "sdkFolder": "/Users/diegoortiz/Library/Android/sdk",
+        "rootBuildGradleFolder": "C:\\Users\\herca\\OneDrive\\Documentos\\Progrmacion Movil\\Proyecto en Equipos\\Z_ITI-271311_U2_E07",
+        "sdkFolder": "C:\\Users\\herca\\AppData\\Local\\Android\\Sdk",
         "isBuildOnlyTargetAbiEnabled": true,
         "ideBuildTargetAbi": "arm64-v8a,armeabi-v7a,armeabi",
         "isCmakeBuildCohabitationEnabled": false,
         "isPrefabEnabled": false
       },
       "outputOptions": [],
-      "ninjaExe": "/Users/diegoortiz/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "ninjaExe": "C:\\Users\\herca\\AppData\\Local\\Android\\Sdk\\cmake\\3.22.1\\bin\\ninja.exe",
       "hasBuildTimeInformation": true
     },
     "prefabClassPaths": [],
@@ -161,29 +161,29 @@
   "buildSettings": {
     "environmentVariables": []
   },
-  "prefabFolder": "/Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/.cxx/Debug/2246z4h2/prefab/arm64-v8a",
+  "prefabFolder": "C:\\Users\\herca\\OneDrive\\Documentos\\Progrmacion Movil\\Proyecto en Equipos\\Z_ITI-271311_U2_E07\\sdk\\.cxx\\Debug\\2246z4h2\\prefab\\arm64-v8a",
   "isActiveAbi": true,
   "fullConfigurationHash": "2246z4h256b235oz2z5l4t3a1p133ce3l5m6t21404v6q3u31c6p1m116j3c",
   "fullConfigurationHashKey": "# Values used to calculate the hash in this folder name.\n# Should not depend on the absolute path of the project itself.\n#   - AGP: 8.6.1.\n#   - $NDK is the path to NDK 26.1.10909125.\n#   - $PROJECT is the path to the parent folder of the root Gradle build file.\n#   - $ABI is the ABI to be built with. The specific value doesn\u0027t contribute to the value of the hash.\n#   - $HASH is the hash value computed from this text.\n#   - $CMAKE is the path to CMake 3.22.1.\n#   - $NINJA is the path to Ninja.\n-H$PROJECT/sdk/libcxx_helper\n-DCMAKE_SYSTEM_NAME\u003dAndroid\n-DCMAKE_EXPORT_COMPILE_COMMANDS\u003dON\n-DCMAKE_SYSTEM_VERSION\u003d21\n-DANDROID_PLATFORM\u003dandroid-21\n-DANDROID_ABI\u003d$ABI\n-DCMAKE_ANDROID_ARCH_ABI\u003d$ABI\n-DANDROID_NDK\u003d$NDK\n-DCMAKE_ANDROID_NDK\u003d$NDK\n-DCMAKE_TOOLCHAIN_FILE\u003d$NDK/build/cmake/android.toolchain.cmake\n-DCMAKE_MAKE_PROGRAM\u003d$NINJA\n-DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003d$PROJECT/sdk/build/intermediates/cxx/Debug/$HASH/obj/$ABI\n-DCMAKE_RUNTIME_OUTPUT_DIRECTORY\u003d$PROJECT/sdk/build/intermediates/cxx/Debug/$HASH/obj/$ABI\n-DCMAKE_BUILD_TYPE\u003dDebug\n-B$PROJECT/sdk/.cxx/Debug/$HASH/$ABI\n-GNinja\n-DANDROID_STL\u003dc++_shared",
   "configurationArguments": [
-    "-H/Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/libcxx_helper",
+    "-HC:\\Users\\herca\\OneDrive\\Documentos\\Progrmacion Movil\\Proyecto en Equipos\\Z_ITI-271311_U2_E07\\sdk\\libcxx_helper",
     "-DCMAKE_SYSTEM_NAME\u003dAndroid",
     "-DCMAKE_EXPORT_COMPILE_COMMANDS\u003dON",
     "-DCMAKE_SYSTEM_VERSION\u003d21",
     "-DANDROID_PLATFORM\u003dandroid-21",
     "-DANDROID_ABI\u003darm64-v8a",
     "-DCMAKE_ANDROID_ARCH_ABI\u003darm64-v8a",
-    "-DANDROID_NDK\u003d/Users/diegoortiz/Library/Android/sdk/ndk/26.1.10909125",
-    "-DCMAKE_ANDROID_NDK\u003d/Users/diegoortiz/Library/Android/sdk/ndk/26.1.10909125",
-    "-DCMAKE_TOOLCHAIN_FILE\u003d/Users/diegoortiz/Library/Android/sdk/ndk/26.1.10909125/build/cmake/android.toolchain.cmake",
-    "-DCMAKE_MAKE_PROGRAM\u003d/Users/diegoortiz/Library/Android/sdk/cmake/3.22.1/bin/ninja",
-    "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003d/Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/build/intermediates/cxx/Debug/2246z4h2/obj/arm64-v8a",
-    "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY\u003d/Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/build/intermediates/cxx/Debug/2246z4h2/obj/arm64-v8a",
+    "-DANDROID_NDK\u003dC:\\Users\\herca\\AppData\\Local\\Android\\Sdk\\ndk\\26.1.10909125",
+    "-DCMAKE_ANDROID_NDK\u003dC:\\Users\\herca\\AppData\\Local\\Android\\Sdk\\ndk\\26.1.10909125",
+    "-DCMAKE_TOOLCHAIN_FILE\u003dC:\\Users\\herca\\AppData\\Local\\Android\\Sdk\\ndk\\26.1.10909125\\build\\cmake\\android.toolchain.cmake",
+    "-DCMAKE_MAKE_PROGRAM\u003dC:\\Users\\herca\\AppData\\Local\\Android\\Sdk\\cmake\\3.22.1\\bin\\ninja.exe",
+    "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003dC:\\Users\\herca\\OneDrive\\Documentos\\Progrmacion Movil\\Proyecto en Equipos\\Z_ITI-271311_U2_E07\\sdk\\build\\intermediates\\cxx\\Debug\\2246z4h2\\obj\\arm64-v8a",
+    "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY\u003dC:\\Users\\herca\\OneDrive\\Documentos\\Progrmacion Movil\\Proyecto en Equipos\\Z_ITI-271311_U2_E07\\sdk\\build\\intermediates\\cxx\\Debug\\2246z4h2\\obj\\arm64-v8a",
     "-DCMAKE_BUILD_TYPE\u003dDebug",
-    "-B/Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/.cxx/Debug/2246z4h2/arm64-v8a",
+    "-BC:\\Users\\herca\\OneDrive\\Documentos\\Progrmacion Movil\\Proyecto en Equipos\\Z_ITI-271311_U2_E07\\sdk\\.cxx\\Debug\\2246z4h2\\arm64-v8a",
     "-GNinja",
     "-DANDROID_STL\u003dc++_shared"
   ],
-  "stlLibraryFile": "/Users/diegoortiz/Library/Android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so",
-  "intermediatesParentFolder": "/Users/diegoortiz/AndroidStudioProjects/Z_ITI271311_U2_E07/sdk/build/intermediates/cxx/Debug/2246z4h2"
+  "stlLibraryFile": "C:\\Users\\herca\\AppData\\Local\\Android\\Sdk\\ndk\\26.1.10909125\\toolchains\\llvm\\prebuilt\\windows-x86_64\\sysroot\\usr\\lib\\aarch64-linux-android\\libc++_shared.so",
+  "intermediatesParentFolder": "C:\\Users\\herca\\OneDrive\\Documentos\\Progrmacion Movil\\Proyecto en Equipos\\Z_ITI-271311_U2_E07\\sdk\\build\\intermediates\\cxx\\Debug\\2246z4h2"
 }

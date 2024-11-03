@@ -1,5 +1,5 @@
 {
-  "installationFolder": "C:\\Users\\Danie\\AndroidStudioProjects\\Z_ITI-271311_U2_E07\\sdk\\build\\intermediates\\prefab_package\\debug\\prefab",
+  "installationFolder": "C:\\Users\\herca\\OneDrive\\Documentos\\Progrmacion Movil\\Proyecto en Equipos\\Z_ITI-271311_U2_E07\\sdk\\build\\intermediates\\prefab_package\\debug\\prefab",
   "gradlePath": ":sdk",
   "packageInfo": {
     "packageName": "sdk",
@@ -8,7 +8,7 @@
     "modules": [
       {
         "moduleName": "opencv_jni_shared",
-        "moduleHeaders": "C:\\Users\\Danie\\AndroidStudioProjects\\Z_ITI-271311_U2_E07\\sdk\\native\\jni\\include",
+        "moduleHeaders": "C:\\Users\\herca\\OneDrive\\Documentos\\Progrmacion Movil\\Proyecto en Equipos\\Z_ITI-271311_U2_E07\\sdk\\native\\jni\\include",
         "moduleExportLibraries": [],
         "abis": []
       }

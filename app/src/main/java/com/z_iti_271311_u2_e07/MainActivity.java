@@ -1,6 +1,7 @@
 package com.z_iti_271311_u2_e07;
 
 import android.Manifest;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -35,7 +36,9 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 import org.opencv.android.OpenCVLoader;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -224,6 +227,9 @@ public class MainActivity extends AppCompatActivity {
 
                     // Actualizar la imagen con el encerrado
                     imgPhoto.setImageBitmap(mutableBitmap);
+
+                    // Guardar la imagen después de procesarla
+                    saveImageToFile(mutableBitmap);
                 })
                 .addOnFailureListener(e -> Toast.makeText(MainActivity.this, "Error en OCR: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
@@ -515,6 +521,7 @@ public class MainActivity extends AppCompatActivity {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            Toast.makeText(this, "Error rotando la imagen", Toast.LENGTH_SHORT).show();
             return img;
         }
     }
@@ -533,6 +540,63 @@ public class MainActivity extends AppCompatActivity {
         CellInfo(String assignment, char[] bits) {
             this.assignment = assignment;
             this.bits = bits;
+        }
+    }
+
+    // Guardar imagen procesada en almacenamiento
+    private void saveImageToFile(Bitmap bitmap) {
+        // Verificar la versión de Android
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            saveImageToMediaStore(bitmap);
+        } else {
+            saveImageToExternalStorage(bitmap);
+        }
+    }
+
+    // Guardar la imagen en MediaStore para Android 10 o superior
+    private void saveImageToMediaStore(Bitmap bitmap) {
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, "IMG_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date()) + ".jpg");
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+        values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/MiAplicacion");
+
+        Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+
+        if (uri != null) {
+            try (OutputStream out = getContentResolver().openOutputStream(uri)) {
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                Toast.makeText(this, "Imagen guardada en la galería", Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Error al guardar la imagen en MediaStore", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(this, "Error al crear URI para guardar la imagen", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // Guardar la imagen en almacenamiento externo para versiones anteriores a Android 10
+    private void saveImageToExternalStorage(Bitmap bitmap) {
+        File storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "MiAplicacion");
+        if (!storageDir.exists()) {
+            storageDir.mkdirs();
+        }
+
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        File file = new File(storageDir, "IMG_" + timeStamp + ".jpg");
+
+        try (FileOutputStream out = new FileOutputStream(file)) {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+
+            Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            Uri contentUri = Uri.fromFile(file);
+            mediaScanIntent.setData(contentUri);
+            sendBroadcast(mediaScanIntent);
+
+            Toast.makeText(this, "Imagen guardada en: " + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
         }
     }
 }
